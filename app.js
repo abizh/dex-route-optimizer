@@ -1,28 +1,53 @@
 async function runOptimizer() {
+  try {
 
-  const intent = {
-    tokenIn: "OPN",
-    tokenOut: "OPNT",
-    amount: 1
-  };
+    const intent = {
+      tokenIn: "OPN",
+      tokenOut: "OPNT",
+      amountIn: 1
+    };
 
-  const res = await fetch("/api/route", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(intent)
-  });
+    // ⚠️ HARUS diarahkan ke backend nyata (bukan /api kalau GitHub Pages)
+    const API_URL = "https://YOUR-BACKEND-DOMAIN.com/api/route";
 
-  const data = await res.json();
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(intent)
+    });
 
-  document.getElementById("result").innerHTML = `
-    <div class="title">Best Route Found</div>
+    if (!res.ok) {
+      throw new Error("Route API failed");
+    }
 
-    <div>Path: ${data.route.map(r => r.pool).join(" → ")}</div>
+    const data = await res.json();
 
-    <div>Expected Out: <b>${data.expectedOut}</b></div>
+    // safety fallback
+    const routePath = (data.route?.path || [])
+      .map(step => `${step.tokenIn} → ${step.tokenOut}`)
+      .join(" → ");
 
-    <div>Score: <b>${data.score}</b></div>
+    document.getElementById("result").innerHTML = `
+      <div style="margin-top:10px;">
+        <b>Best Route Found</b><br><br>
 
-    <div>Gas: ${data.gasEstimate}</div>
-  `;
-}
+        <b>Path:</b> ${routePath}<br>
+        <b>Expected Out:</b> ${data.route?.expectedOut ?? 0}<br>
+        <b>Score:</b> ${data.route?.score ?? 0}<br>
+        <b>Gas:</b> ${data.route?.gasEstimate ?? "N/A"}<br>
+        <b>Slippage Risk:</b> ${data.route?.slippageRisk ?? "N/A"}<br>
+      </div>
+    `;
+
+  } catch (err) {
+    console.error(err);
+
+    document.getElementById("result").innerHTML = `
+      <div style="color:red;">
+        Route Engine Error: ${err.message}
+      </div>
+    `;
+  }
+          }
