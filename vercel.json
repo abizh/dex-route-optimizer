@@ -4,5 +4,8 @@
     "api/route.js": {
       "runtime": "nodejs18.x"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/api/route", "destination": "/api/route.js" }
+  ]
 }
