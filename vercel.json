@@ -1,11 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "api/route.js": {
+    "api/*.js": {
       "runtime": "nodejs18.x"
     }
-  },
-  "rewrites": [
-    { "source": "/api/route", "destination": "/api/route.js" }
-  ]
+  }
 }
